@@ -41,7 +41,12 @@ const useImageGeneration = () => {
     });
 
     try {
-      const result = await generateImage(params);
+      const result = await generateImage(params, (status) => {
+        if (params.engine === 'comfyui') {
+          setGenerationStatus((previous) => ({ ...previous, status: status.status,
+            queuePosition: status.queue_position ?? null }));
+        }
+      });
       if (!result.success) {
         throw createGenerationError(
           normalizeGenerationErrorCode(result, GENERATION_ERROR_CODES.GENERATION_FAILED),
@@ -59,6 +64,9 @@ const useImageGeneration = () => {
         status: 'completed',
         progress: 100,
         model: result.model || params.model || null,
+        target: result.target || null,
+        testData: result.testData || false,
+        jobId: result.jobId || null,
       });
       return {
         id: `${Date.now()}-${params.index ?? 0}`,
@@ -74,6 +82,9 @@ const useImageGeneration = () => {
         height: result.height,
         isComposited: false,
         model: result.model || params.model || null,
+        target: result.target || null,
+        testData: result.testData || false,
+        jobId: result.jobId || null,
       };
     } catch (error) {
       const normalizedError = createGenerationError(
@@ -94,7 +105,7 @@ const useImageGeneration = () => {
         statusCode: normalizedError.statusCode || null,
         model: normalizedError.model || params.model || null,
       });
-      throw normalizedError;
+      throw params.engine === 'comfyui' ? error : normalizedError;
     } finally {
       generatingRef.current = false;
       setIsGenerating(false);

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "mock-text-to-image",
+    "name": "Mock 文生图（仅测试数据）",
+    "description": "协议模拟器，不包含任何真实模型或 GPU 工作流。",
+    "test_only": true,
+    "file": "text-to-image.json",
+    "fields": {
+      "positive_prompt": {"label": "正向提示词", "type": "string", "required": true, "targets": [{"node": "mock_prompt", "input": "text"}]},
+      "seed": {"label": "Seed", "type": "integer", "default": 0, "min": 0, "max": 9007199254740991, "targets": [{"node": "mock_output", "input": "seed"}]}
+    },
+    "output_nodes": ["mock_output"]
+  }
+]

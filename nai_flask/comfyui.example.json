@@ -1,0 +1,12 @@
+{
+  "port": 5000,
+  "allow_lan": false,
+  "data_dir": "data",
+  "comfyui_url": "http://127.0.0.1:8188",
+  "comfyui_workflows": "workflows.local/presets.json",
+  "comfyui_timeout_seconds": 10,
+  "comfyui_job_timeout_seconds": 600,
+  "comfyui_env": "development",
+  "comfyui_local_mode": true,
+  "comfyui_mock": false
+}

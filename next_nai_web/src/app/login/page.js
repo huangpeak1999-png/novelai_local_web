@@ -282,6 +282,7 @@ export default function LoginPage() {
                         </>
                       )}
                       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                      <Button fullWidth href="/comfycomic" sx={{ mb: 1 }}>ComfyComic · ComfyUI 本地漫画工作区</Button>
                       <Button fullWidth variant="contained" size="large"
                         disabled={loading || (loginMode === 'token' ? !token.trim() : !email.trim() || !password)}
                         onClick={handleSubmit} sx={primaryButtonStyle}>

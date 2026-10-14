@@ -2468,6 +2468,7 @@ const AIPaintingPageContent = ({ userId, accountSnapshot = null }) => {
               <ComicIcon sx={{ fontSize: 18 }} />
               {comicText.title}
             </Button>
+            <Button href="/comfycomic" size="small">ComfyUI</Button>
           </Box>
 
           <Box
