@@ -38,6 +38,7 @@ data/
 **/*.bak
 **/account-change-recovery.json
 **/novelai-tls-bindings.json
+nai_flask/workflows.local/
 
 # 浏览器测试状态
 .playwright-cli/

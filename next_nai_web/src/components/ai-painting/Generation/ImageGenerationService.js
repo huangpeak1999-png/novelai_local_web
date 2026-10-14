@@ -1,4 +1,5 @@
 import apiClient from '@/utils/ApiClient';
+import { generateComfyImage } from './comfyGeneration.mjs';
 import {
   createBlobFromBase64,
   createObjectUrlFromBlob,
@@ -111,6 +112,9 @@ function buildGenerationRequest(params) {
  * @returns {Promise<object>} 原生成上下文可直接消费的结果。
  */
 const generateImage = async (requestParams, onProgress = () => {}) => {
+  if (requestParams.engine === 'comfyui') {
+    return generateComfyImage(requestParams, onProgress, { api: apiClient });
+  }
   if (requestParams.model === 'nai-diffusion-5-curated' && requestParams.imageToImage?.mask) {
     return createGenerationFailure(GENERATION_ERROR_CODES.NOVELAI_INPAINT_MODEL_NOT_SUPPORTED);
   }

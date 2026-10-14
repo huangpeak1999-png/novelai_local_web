@@ -1,0 +1,4 @@
+{
+  "mock_prompt": {"class_type": "ComfyComicMockText_TEST_ONLY", "inputs": {"text": ""}},
+  "mock_output": {"class_type": "ComfyComicMockImage_TEST_ONLY", "inputs": {"text": ["mock_prompt", 0], "seed": 0}}
+}

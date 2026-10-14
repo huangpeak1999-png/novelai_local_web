@@ -1,0 +1,8 @@
+{
+  "port": 5000,
+  "allow_lan": false,
+  "data_dir": "data",
+  "comfyui_env": "development",
+  "comfyui_local_mode": true,
+  "comfyui_mock": true
+}

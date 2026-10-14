@@ -41,6 +41,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from PIL import Image as PillowImage, UnidentifiedImageError
 
 from api_utils.custom_errors import ExposableError
+from api_utils.comfyui.routes import register_comfyui, is_loopback_request
 from api_utils.account_change import (
     AccountChangeCoordinator,
     CredentialChangeError,
@@ -80,6 +81,8 @@ IMAGE_ENDPOINT_LOG_NAMES = {
 TRUSTED_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
 LAN_IPV4_NETWORKS = tuple(ipaddress.ip_network(value) for value in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"))
 LOCAL_CONFIG_KEYS = frozenset({
+    "comfyui_url", "comfyui_workflows", "comfyui_mock", "comfyui_local_mode",
+    "comfyui_env", "comfyui_timeout_seconds", "comfyui_job_timeout_seconds",
     "port",
     "data_dir",
     "upstream_timeout_seconds",
@@ -346,6 +349,10 @@ def session_required(*, csrf: bool = False) -> Callable[[Callable[..., Any]], Ca
             session_id, entry = _current_session()
             if entry is None:
                 raise ApiError("Authentication is required.", 401, "AUTH_REQUIRED")
+            if entry["login_mode"] == "comfy_local":
+                if (not is_loopback_request() or current_app.config["ALLOW_LAN"]
+                        or not (request.path.startswith("/api/comfyui/") or request.path == "/api/session")):
+                    raise ApiError("This development session is restricted to local ComfyComic APIs.", 403, "COMFY_LOCAL_ONLY")
             if csrf:
                 supplied = request.headers.get("X-CSRF-Token", "")
                 expected = entry["csrf_token"]
@@ -890,6 +897,13 @@ def create_app(
     app = Flask(__name__, static_folder=None)
     app.config.update(
         HOST="127.0.0.1",
+        COMFYUI_URL="http://127.0.0.1:8188",
+        COMFYUI_WORKFLOWS="",
+        COMFYUI_MOCK=False,
+        COMFYUI_LOCAL_MODE=False,
+        COMFYUI_ENV="production",
+        COMFYUI_TIMEOUT_SECONDS=10,
+        COMFYUI_JOB_TIMEOUT_SECONDS=600,
         ALLOW_LAN=False,
         PORT=5000,
         DATA_DIR=str(BASE_DIR / "data"),
@@ -976,6 +990,8 @@ def create_app(
     migrate_reference_library(app.extensions["image_library"], app.extensions["reference_store"], app.extensions["local_store"])
     app.extensions["local_sessions"] = {}
     app.extensions["session_lock"] = threading.RLock()
+    register_comfyui(app, session_required=session_required, current_session=_current_session,
+                     create_session=_create_session, delete_session=_delete_session, set_cookie=_set_session_cookie)
     app.extensions["batch_states"] = {}
     app.extensions["batch_lock"] = threading.RLock()
     app.extensions["image_operation_lock"] = threading.Lock()
